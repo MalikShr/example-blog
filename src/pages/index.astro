@@ -1,0 +1,23 @@
+---
+import Layout from '@layouts/Layout.astro'
+import BlogCard from '@components/BlogCard.astro'
+import { getCollection, type CollectionEntry } from 'astro:content'
+
+const allBlogArticles: CollectionEntry<"blog">[] = (await getCollection("blog")).sort((a: CollectionEntry<"blog">, b:CollectionEntry<"blog">) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+
+const newestArticles: CollectionEntry<"blog">[] = [allBlogArticles[0], allBlogArticles[1], allBlogArticles[2]]
+---
+
+<Layout title="Example Blog">
+	<main class="grid justify-center">
+		<h1 class="m-auto font-bold">Example Blog</h1>
+		<div class="flex space-x-10 my-6">
+			{newestArticles.map(article => (
+				<BlogCard {article} />
+			))}
+		</div>
+		<a href="/articles" class="btn btn-ghost m-auto text-xl">View all ➝</a>
+	</main>
+</Layout>
+
+

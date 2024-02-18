@@ -1,0 +1,39 @@
+---
+import Layout from '@layouts/Layout.astro'
+import { getEntry } from 'astro:content'
+import { formatDate } from '../../utils'
+
+const {slug} = Astro.params
+
+if(slug === undefined) {
+    throw new Error("Slug is requiered")
+}
+
+const article = await getEntry("blog", slug)
+
+if(article === undefined) {
+    return Astro.redirect("/404")
+}
+
+const {Content} = await article.render()
+---
+
+<Layout title={article.data.title}>
+    <div class="pb-10">    
+        <h1 class="font-bold">{article.data.title}</h1>
+        <h2>by {article.data.author}</h2>
+        <h3 class="text-lg text-gray-400">{formatDate(article.data.pubDate)}</h3>
+    </div>
+
+    <img src=`/images/${article.data.image}` transition:name={article.data.slug}/>
+
+    <article>
+        <Content/>
+    </article>
+</Layout>
+
+<style is:global>
+    p {
+        margin: 20px 0;
+    }
+</style>

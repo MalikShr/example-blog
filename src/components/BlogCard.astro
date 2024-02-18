@@ -1,0 +1,28 @@
+---
+import { type CollectionEntry } from 'astro:content'
+import { formatDate } from '../utils'
+
+type Props = {
+	article: CollectionEntry<"blog">
+}
+
+const {article} = Astro.props
+const tags: string[] = article.data.tags
+---
+
+<a class="card w-80 bg-base-100 shadow-lg transition duration-150 ease-in-out cursor-pointer hover:scale-105 hover:shadow-xl" href=`/articles/${article.data.slug}`>
+	<figure><img transition:name={article.data.slug} src=`/images/${article.data.image}` alt="Shoes"/></figure>
+	<div class="card-body">
+	<h2 class="card-title">{article.data.title} </h2>
+		<div class="grid">
+			<div class="text-gray-400">
+				{formatDate(article.data.pubDate)}
+			</div>
+			<div class="card-actions justify-end mt-3">
+				{tags.map(tag => (
+					<div class="badge badge-outline">{tag}</div>
+				))}
+			</div>	  
+		</div>
+	</div>
+</a>

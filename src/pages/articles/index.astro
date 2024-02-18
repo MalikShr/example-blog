@@ -1,0 +1,35 @@
+---
+import Layout from '@layouts/Layout.astro'
+import BlogCard from '@components/BlogCard.astro'
+import Paginator from '@components/Paginator.astro'
+import { ARTICLES_PER_PAGE } from '../../constants'
+import { getCollection, type CollectionEntry } from 'astro:content'
+
+const allBlogArticles: CollectionEntry<"blog">[] = (
+        await getCollection("blog"))
+            .sort((a: CollectionEntry<"blog">, b:CollectionEntry<"blog">) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    )
+
+const currentPage: number | null = +Astro.url.searchParams.get('page')! || 1;
+
+const totalPages: number = allBlogArticles.length !== 0 ? Math.ceil(allBlogArticles.length / ARTICLES_PER_PAGE) : 1
+
+const disablePrevious: boolean = currentPage === 1
+const disableNext: boolean = currentPage === totalPages
+
+const pageArticles: CollectionEntry<"blog">[] = allBlogArticles.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage*ARTICLES_PER_PAGE)
+---
+
+<Layout title="All Articles">
+    <main class="grid grid-cols-3 gap-10">
+        {pageArticles.map(article => (
+            <BlogCard {article}/>
+        ))}
+    </main>
+
+    <Paginator 
+        {disablePrevious} {disableNext} 
+        previousPage=`/articles?page=${currentPage - 1}` 
+        nextPage=`/articles?page=${currentPage + 1}`
+    />
+</Layout>

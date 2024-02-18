@@ -1,0 +1,62 @@
+---
+import Layout from '@layouts/Layout.astro'
+import BlogCard from '@components/BlogCard.astro'
+import Paginator from '@components/Paginator.astro'
+import { ARTICLES_PER_PAGE } from '../../constants'
+import { getCollection, type CollectionEntry } from 'astro:content'
+
+const allBlogArticles: CollectionEntry<"blog">[] = (
+        await getCollection("blog"))
+            .sort((a: CollectionEntry<"blog">, b:CollectionEntry<"blog">) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    )
+
+const query: string | null = Astro.url.searchParams.get('query');
+
+if (query === null) {
+    return
+}
+
+const searchResults = allBlogArticles.filter(article => {
+  const titleMatch: boolean = article.data.title
+    .toLowerCase()
+    .includes(query!.toLowerCase())
+
+    const bodyMatch: boolean = article.body
+    .toLowerCase()
+    .includes(query!.toLowerCase())
+
+    const slugMatch: boolean = article.slug
+    .toLowerCase()
+    .includes(query!.toLowerCase())
+
+    return titleMatch || bodyMatch || slugMatch
+})
+
+const currentPage: number | null = +Astro.url.searchParams.get('page')! || 1
+
+const totalPages: number = searchResults.length !== 0 ? Math.ceil(searchResults.length / ARTICLES_PER_PAGE) : 1
+
+const disablePrevious: boolean = currentPage === 1
+const disableNext: boolean = currentPage === totalPages
+
+const pageArticles: CollectionEntry<"blog">[] = searchResults.slice((currentPage - 1) * ARTICLES_PER_PAGE, currentPage*ARTICLES_PER_PAGE)
+---
+
+<Layout title=`${query} - Blog Search`>
+    <h2 class="text-4xl">Search Results for <b>{query}</b></h2>
+    {searchResults.length === 0 && <h3 class="text-md text-gray-400">No results</h3>}
+    {searchResults.length === 1 && <h3 class="text-md text-gray-400">One result</h3>}
+    {searchResults.length > 1 && <h3 class="text-md text-gray-400">{searchResults.length} results</h3>}
+    <main class="grid grid-cols-3 gap-10 mt-5">
+        {pageArticles.map(article => (
+            <BlogCard {article}/>
+        ))}
+    </main>
+
+    <Paginator 
+        {disablePrevious} {disableNext} 
+        previousPage=`/articles/search?page=${currentPage - 1}&query=${query}` 
+        nextPage=`/articles/search?page=${currentPage + 1}&query=${query}`
+    />
+
+</Layout>

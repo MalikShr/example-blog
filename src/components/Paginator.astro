@@ -1,0 +1,15 @@
+---
+type Props = {
+    disablePrevious: boolean
+    disableNext: boolean
+    previousPage: string
+    nextPage: string
+}
+
+const {disablePrevious, disableNext, previousPage, nextPage} = Astro.props
+---
+
+<div class="flex justify-between w-full mt-20">
+    <a href={previousPage} class={disablePrevious ? "btn btn-disabled" : "btn btn-secondary"}>Previous</a>
+    <a href={nextPage} class={disableNext ? "btn btn-disabled" : "btn btn-secondary"}>Next</a>
+</div>
